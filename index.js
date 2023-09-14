@@ -11,7 +11,7 @@ app.use(express.json())
 app.use(cors({
     origin: '*'
 }));
-geneareteFile(fileName)
+geneareteFile(`${fileName}.json`)
 app.get('/', (req, res) => {
     res.send('Hello!')
 })

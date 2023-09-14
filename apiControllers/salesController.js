@@ -9,7 +9,7 @@ const deleteDataServices = require("../apiServices/deleteDataServices");
 const fileName = process.env.FILE_NAME;
 const getSalesData = async (req, res) => {
   const queryObject = req.query;
-  const data = await getAllData(fileName);
+  const data = await getAllData(`${fileName}.json`);
 
   let manipulatedData = [...data];
   if (queryObject.q) {
@@ -85,7 +85,7 @@ const getSalesData = async (req, res) => {
 
 const getSalesDataById = async (req, res) => {
   try {
-    const data = await getAllData(fileName);
+    const data = await getAllData(`${fileName}.json`);
     const params = req.params;
     const manipulatedData = data.filter((row) => row.index == params.id);
     return res.status(200).json(manipulatedData);
@@ -95,14 +95,14 @@ const getSalesDataById = async (req, res) => {
 };
 const postSalesData = async (req, res, next) => {
   try {
-    const data = (await getAllData(fileName)) ?? [];
+    const data = (await getAllData(`${fileName}.json`)) ?? [];
     const body = req.body ?? {};
     if (!body.index)
       return catchHandler(req, res, { message: "Id not exist." }, 400);
     // check index is exist
     const isExist = data.find((row) => row.index === body.index);
     if (!isExist) {
-      const result = await addDataServices(req, res, data, fileName, body);
+      const result = await addDataServices(req, res, data, `${fileName}.json`, body);
       return res.status(200).json({
         success: 1,
         data: result,
@@ -118,7 +118,7 @@ const postSalesData = async (req, res, next) => {
 
 const patchSalesData = async (req, res, next) => {
   try {
-    const data = await getAllData(fileName);
+    const data = await getAllData(`${fileName}.json`);
     const body = req.body;
     if (JSON.stringify(body) === "{}")
       return catchHandler(req, res, { message: "Wrong data." }, 400);
@@ -128,7 +128,7 @@ const patchSalesData = async (req, res, next) => {
         req,
         res,
         data,
-        fileName,
+        `${fileName}.json`,
         body,
         isExistIndex
       );
@@ -147,7 +147,7 @@ const patchSalesData = async (req, res, next) => {
 
 const deleteSalesData = async (req, res, next) => {
   try {
-    const data = (await getAllData(fileName)) ?? [];
+    const data = (await getAllData(`${fileName}.json`)) ?? [];
     const params = req.params ?? {};
     if (!params.id)
       return catchHandler(req, res, { message: "Id not exist." }, 400);
@@ -158,7 +158,7 @@ const deleteSalesData = async (req, res, next) => {
         req,
         res,
         data,
-        fileName,
+        `${fileName}.json`,
         params,
         isExist
       );
