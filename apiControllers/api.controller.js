@@ -1,12 +1,13 @@
 // const { getData } = require("../fileHandle/connecting")
 const dotenv = require("dotenv").config();
-const { getAllData } = require("../fileGenerator/getData");
-const { catchHandler } = require("../utils/handlers");
-const addDataServices = require("../apiServices/addDataServices");
+const { getAllData } = require("../fileGenerator/get.all.data");
+const { catchHandler } = require("../allHandlers/handlers");
+const addDataServices = require("../apiServices/add.data.services");
 const { returnGreaterOrSmaller } = require("../utils/helper");
-const updateDataServices = require("../apiServices/updateDataServices");
-const deleteDataServices = require("../apiServices/deleteDataServices");
+const updateDataServices = require("../apiServices/update.data.services");
+const deleteDataServices = require("../apiServices/delete.data.services");
 const fileName = process.env.FILE_NAME;
+
 const getSalesData = async (req, res) => {
   const queryObject = req.query;
   const data = await getAllData(`${fileName}.json`);
@@ -98,7 +99,7 @@ const postSalesData = async (req, res, next) => {
     const data = (await getAllData(`${fileName}.json`)) ?? [];
     const body = req.body ?? {};
     if (!body.index)
-      return catchHandler(req, res, { message: "Id not exist." }, 400);
+      return catchHandler(req, res, { message: "Index not exist." }, 400);
     // check index is exist
     const isExist = data.find((row) => row.index === body.index);
     if (!isExist) {
@@ -109,7 +110,7 @@ const postSalesData = async (req, res, next) => {
         message: "Data added successfully.",
       });
     } else {
-      catchHandler(req, res, { message: "Id already exist." }, 409);
+      catchHandler(req, res, { message: "Index already exist." }, 409);
     }
   } catch (error) {
     catchHandler(req, res, error);
@@ -138,7 +139,7 @@ const patchSalesData = async (req, res, next) => {
         message: "Data updated successfully.",
       });
     } else {
-      catchHandler(req, res, { message: "Id is not exist." }, 400);
+      catchHandler(req, res, { message: "Index key is not exist." }, 400);
     }
   } catch (error) {
     catchHandler(req, res, error);
@@ -150,7 +151,7 @@ const deleteSalesData = async (req, res, next) => {
     const data = (await getAllData(`${fileName}.json`)) ?? [];
     const params = req.params ?? {};
     if (!params.id)
-      return catchHandler(req, res, { message: "Id not exist." }, 400);
+      return catchHandler(req, res, { message: "Index key not exist." }, 400);
     // check index is exist
     const isExist = data.findIndex((row) => row.index == params.id);
     if (isExist !== -1) {
@@ -168,7 +169,7 @@ const deleteSalesData = async (req, res, next) => {
         message: "Data deleted successfully.",
       });
     } else {
-      catchHandler(req, res, { message: "Id is not exist." }, 409);
+      catchHandler(req, res, { message: "Index key is not exist." }, 409);
     }
   } catch (error) {
     catchHandler(req, res, error);

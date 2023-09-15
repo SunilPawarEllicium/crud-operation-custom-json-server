@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { catchHandler } = require("../utils/handlers");
+const { catchHandler } = require("../allHandlers/handlers");
 const updateDataServices = async (req, res, data =[], fileName, appendData,index) => {
   try {
     data.splice(index,1,appendData);

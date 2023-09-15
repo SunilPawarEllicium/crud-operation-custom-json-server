@@ -1,5 +1,5 @@
 const express = require('express')
-const { getSalesData,postSalesData,patchSalesData,deleteSalesData,getSalesDataById } = require('../apiControllers/salesController')
+const { getSalesData,postSalesData,patchSalesData,deleteSalesData,getSalesDataById } = require('../apiControllers/api.controller')
 
 const router =express.Router()
 

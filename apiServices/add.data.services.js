@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { catchHandler } = require("../utils/handlers");
+const { catchHandler } = require("../allHandlers/handlers");
 const addDataServices = async (req, res, data, fileName, appendData) => {
   try {
     data.push(appendData);
