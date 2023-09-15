@@ -22,5 +22,5 @@ app.get('/', (req, res) => {
 app.use(router)
 
 app.listen(port, () => {
-  console.log(`Example app listening on port http://localhost:${port}`)
+  console.log(`App listening`)
 })
