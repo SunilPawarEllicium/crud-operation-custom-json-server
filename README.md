@@ -1,6 +1,6 @@
 # crud-operation-custom-json-server
 
-Use Routes
+# Use Routes
 # Get all data : /getData 
 # Get data by id : /getData/[id]
 # Add Data :/addData
