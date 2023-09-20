@@ -16,7 +16,6 @@ geneareteFile(`${fileName}.json`)
 app.use(express.static(__dirname));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname+'/public/index.html'));
-    // res.send('Hello!')
 })
 
 app.use(router)
