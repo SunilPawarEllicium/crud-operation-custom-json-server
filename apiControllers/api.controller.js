@@ -9,6 +9,7 @@ const deleteDataServices = require("../apiServices/delete.data.services");
 const fileName = process.env.FILE_NAME;
 
 const getSalesData = async (req, res) => {
+ try {
   const queryObject = req.query;
   const data = await getAllData(`${fileName}.json`);
 
@@ -81,7 +82,10 @@ const getSalesData = async (req, res) => {
   if (queryObject._limit) {
     manipulatedData = manipulatedData.slice(0, queryObject._limit);
   }
-  return res.status(200).json(manipulatedData);
+  return res.status(200).json({success:1,message:'',data:manipulatedData});
+ } catch (error) {
+  catchHandler(req, res, error);
+ }
 };
 
 const getSalesDataById = async (req, res) => {
@@ -89,7 +93,7 @@ const getSalesDataById = async (req, res) => {
     const data = await getAllData(`${fileName}.json`);
     const params = req.params;
     const manipulatedData = data.filter((row) => row.index == params.id);
-    return res.status(200).json(manipulatedData);
+    return res.status(200).json({success:1,message:'',data:manipulatedData});
   } catch (error) {
     catchHandler(req, res, error);
   }
