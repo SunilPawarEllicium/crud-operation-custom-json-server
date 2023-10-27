@@ -194,30 +194,7 @@ const getHorseData = async (req, res, next) => {
   try {
     const username = 'JtzsIHOM0wO2BD6uI0xhCoMS';
     const password = 'y9owhCEneYOgTuI5IXrE8EnB';
-    const url = "http://api.theracingapi.com/v1/horses";
-
-    const config = {
-      url,
-      auth: {
-        username: username,
-        password: password,
-      },
-    };
-    request(config, function (err, resp, body) {
-      if (err) {
-        console.error(err);
-      }
-      return res.status(200).json(resp);
-    });
-  } catch (error) {
-    catchHandler(req, res, error);
-  }
-};
-const getJockeysData = async (req, res, next) => {
-  try {
-    const username = 'JtzsIHOM0wO2BD6uI0xhCoMS';
-    const password = 'y9owhCEneYOgTuI5IXrE8EnB';
-    const url = "http://api.theracingapi.com/v1/jockeys";
+    const url = "http://api.theracingapi.com/v1/courses";
 
     const config = {
       url,
@@ -244,5 +221,4 @@ module.exports = {
   patchSalesData,
   deleteSalesData,
   getHorseData,
-  getJockeysData
 };
