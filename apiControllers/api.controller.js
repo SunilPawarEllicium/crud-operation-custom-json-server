@@ -6,86 +6,89 @@ const addDataServices = require("../apiServices/add.data.services");
 const { returnGreaterOrSmaller } = require("../utils/helper");
 const updateDataServices = require("../apiServices/update.data.services");
 const deleteDataServices = require("../apiServices/delete.data.services");
+const request = require("request");
 const fileName = process.env.FILE_NAME;
 
 const getSalesData = async (req, res) => {
- try {
-  const queryObject = req.query;
-  const data = await getAllData(`${fileName}.json`);
+  try {
+    const queryObject = req.query;
+    const data = await getAllData(`${fileName}.json`);
 
-  let manipulatedData = [...data];
-  if (queryObject.q) {
-    if (queryObject.attr) {
-      const attrData = queryObject.attr.split(",");
-      manipulatedData = manipulatedData.filter((obj) =>
-        Object.keys(obj).some(
-          (key) =>
+    let manipulatedData = [...data];
+    if (queryObject.q) {
+      if (queryObject.attr) {
+        const attrData = queryObject.attr.split(",");
+        manipulatedData = manipulatedData.filter((obj) =>
+          Object.keys(obj).some(
+            (key) =>
+              (obj[key] ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(queryObject.q.toLowerCase()) &&
+              Object.keys(obj).filter((key) => attrData.includes(key)).length
+          )
+        );
+      } else {
+        manipulatedData = manipulatedData.filter((obj) =>
+          Object.keys(obj).some((key) =>
             (obj[key] ?? "")
               .toString()
               .toLowerCase()
-              .includes(queryObject.q.toLowerCase()) &&
-            Object.keys(obj).filter((key) => attrData.includes(key)).length
-        )
-      );
-    } else {
-      manipulatedData = manipulatedData.filter((obj) =>
-        Object.keys(obj).some((key) =>
-          (obj[key] ?? "")
-            .toString()
-            .toLowerCase()
-            .includes(queryObject.q.toLowerCase())
-        )
-      );
+              .includes(queryObject.q.toLowerCase())
+          )
+        );
+      }
     }
-  }
-  if (queryObject._sort) {
-    if (queryObject._order === "asc") {
+    if (queryObject._sort) {
+      if (queryObject._order === "asc") {
+        manipulatedData = manipulatedData.sort((a, b) => {
+          const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
+          const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
+          return returnGreaterOrSmaller(nameB, nameA);
+        });
+      } else if (queryObject._order === "desc") {
+        manipulatedData = manipulatedData.sort((a, b) => {
+          const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
+          const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
+          return returnGreaterOrSmaller(nameA, nameB);
+        });
+      } else {
+        manipulatedData = manipulatedData.sort((a, b) => {
+          const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
+          const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
+          return returnGreaterOrSmaller(nameB, nameA);
+        });
+      }
+    }
+    if (!queryObject._sort && queryObject._order === "asc") {
       manipulatedData = manipulatedData.sort((a, b) => {
         const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
         const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
         return returnGreaterOrSmaller(nameB, nameA);
       });
-    } else if (queryObject._order === "desc") {
+    }
+    if (!queryObject._sort && queryObject._order === "desc") {
       manipulatedData = manipulatedData.sort((a, b) => {
         const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
         const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
         return returnGreaterOrSmaller(nameA, nameB);
       });
-    } else {
-      manipulatedData = manipulatedData.sort((a, b) => {
-        const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
-        const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
-        return returnGreaterOrSmaller(nameB, nameA);
-      });
     }
+    if (queryObject._start && queryObject._end) {
+      manipulatedData = manipulatedData.slice(
+        queryObject._start,
+        queryObject._end
+      );
+    }
+    if (queryObject._limit) {
+      manipulatedData = manipulatedData.slice(0, queryObject._limit);
+    }
+    return res
+      .status(200)
+      .json({ success: 1, message: "", data: manipulatedData });
+  } catch (error) {
+    catchHandler(req, res, error);
   }
-  if (!queryObject._sort && queryObject._order === "asc") {
-    manipulatedData = manipulatedData.sort((a, b) => {
-      const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
-      const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
-      return returnGreaterOrSmaller(nameB, nameA);
-    });
-  }
-  if (!queryObject._sort && queryObject._order === "desc") {
-    manipulatedData = manipulatedData.sort((a, b) => {
-      const nameA = (a[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
-      const nameB = (b[queryObject._sort] ?? "").toString().toUpperCase(); // ignore upper and lowercase
-      return returnGreaterOrSmaller(nameA, nameB);
-    });
-  }
-  if (queryObject._start && queryObject._end) {
-    manipulatedData = manipulatedData.slice(
-      queryObject._start,
-      queryObject._end
-    );
-  }
-  if (queryObject._limit) {
-    manipulatedData = manipulatedData.slice(0, queryObject._limit);
-  }
-  return res.status(200).json({success:1,message:'',data:manipulatedData});
- } catch (error) {
-  catchHandler(req, res, error);
- }
 };
 
 const getSalesDataById = async (req, res) => {
@@ -93,7 +96,9 @@ const getSalesDataById = async (req, res) => {
     const data = await getAllData(`${fileName}.json`);
     const params = req.params;
     const manipulatedData = data.filter((row) => row.index == params.id);
-    return res.status(200).json({success:1,message:'',data:manipulatedData});
+    return res
+      .status(200)
+      .json({ success: 1, message: "", data: manipulatedData });
   } catch (error) {
     catchHandler(req, res, error);
   }
@@ -107,7 +112,13 @@ const postSalesData = async (req, res, next) => {
     // check index is exist
     const isExist = data.find((row) => row.index === body.index);
     if (!isExist) {
-      const result = await addDataServices(req, res, data, `${fileName}.json`, body);
+      const result = await addDataServices(
+        req,
+        res,
+        data,
+        `${fileName}.json`,
+        body
+      );
       return res.status(200).json({
         success: 1,
         data: result,
@@ -179,6 +190,52 @@ const deleteSalesData = async (req, res, next) => {
     catchHandler(req, res, error);
   }
 };
+const getHorseData = async (req, res, next) => {
+  try {
+    const username = 'JtzsIHOM0wO2BD6uI0xhCoMS';
+    const password = 'y9owhCEneYOgTuI5IXrE8EnB';
+    const url = "http://api.theracingapi.com/v1/horses";
+
+    const config = {
+      url,
+      auth: {
+        username: username,
+        password: password,
+      },
+    };
+    request(config, function (err, resp, body) {
+      if (err) {
+        console.error(err);
+      }
+      return res.status(200).json(resp);
+    });
+  } catch (error) {
+    catchHandler(req, res, error);
+  }
+};
+const getJockeysData = async (req, res, next) => {
+  try {
+    const username = 'JtzsIHOM0wO2BD6uI0xhCoMS';
+    const password = 'y9owhCEneYOgTuI5IXrE8EnB';
+    const url = "http://api.theracingapi.com/v1/jockeys";
+
+    const config = {
+      url,
+      auth: {
+        username: username,
+        password: password,
+      },
+    };
+    request(config, function (err, resp, body) {
+      if (err) {
+        console.error(err);
+      }
+      return res.status(200).json(resp);
+    });
+  } catch (error) {
+    catchHandler(req, res, error);
+  }
+};
 
 module.exports = {
   getSalesData,
@@ -186,4 +243,6 @@ module.exports = {
   postSalesData,
   patchSalesData,
   deleteSalesData,
+  getHorseData,
+  getJockeysData
 };
