@@ -213,6 +213,52 @@ const getHorseData = async (req, res, next) => {
     catchHandler(req, res, error);
   }
 };
+const getRaceCardData = async (req, res, next) => {
+  try {
+    const username = 'JtzsIHOM0wO2BD6uI0xhCoMS';
+    const password = 'y9owhCEneYOgTuI5IXrE8EnB';
+    const url = "http://api.theracingapi.com/v1/racecards/basic";
+
+    const config = {
+      url,
+      auth: {
+        username: username,
+        password: password,
+      },
+    };
+    request(config, function (err, resp, body) {
+      if (err) {
+        console.error(err);
+      }
+      return res.status(200).json(resp);
+    });
+  } catch (error) {
+    catchHandler(req, res, error);
+  }
+};
+const getTodaysResData = async (req, res, next) => {
+  try {
+    const username = 'JtzsIHOM0wO2BD6uI0xhCoMS';
+    const password = 'y9owhCEneYOgTuI5IXrE8EnB';
+    const url = "http://api.theracingapi.com/v1/results/today";
+
+    const config = {
+      url,
+      auth: {
+        username: username,
+        password: password,
+      },
+    };
+    request(config, function (err, resp, body) {
+      if (err) {
+        console.error(err);
+      }
+      return res.status(200).json(resp);
+    });
+  } catch (error) {
+    catchHandler(req, res, error);
+  }
+};
 
 module.exports = {
   getSalesData,
@@ -221,4 +267,6 @@ module.exports = {
   patchSalesData,
   deleteSalesData,
   getHorseData,
+  getRaceCardData,
+  getTodaysResData
 };
